@@ -10,9 +10,7 @@ def create_task(title: str, description: Optional[str] = None):
 
 @app.get("/todos/")
 def read_todos():
-    todos = get_all_todos()
-    print(todos)
-    return todos
+    return get_all_todos()
 
 @app.get("/todos/{todo_id}")
 def read_todo(todo_id: int):
