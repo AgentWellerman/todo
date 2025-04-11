@@ -1,4 +1,4 @@
-from app.models import Todo, fake_db
+"""from app.models import Todo, fake_db
 from typing import Optional
 
 def create_todo(title:str, description:Optional[str] = None, completed:Optional[str] = None):
@@ -37,3 +37,38 @@ def delete_todo(todo_id: int):
         fake_db.remove(todo)
         return todo.dict()
     return None
+"""
+
+
+from app.database import client, database, todo_collection
+from app.models import Todocreate, TodoDB
+from bson.objectid import ObjectId    
+
+
+async def create_todo(todo:Todocreate):
+    todo_dict = todo.dict()
+    result = await todo_collection.insert_one(todo_dict)
+    return{**todo_dict, "id": str(result.inserted_id)}
+
+async def get_all_todos():
+    todos = await todo_collection.find().to_list(100)
+    return[{**todo, "id":str(todo["_id"])} for todo in todos]
+
+async def get_todo_by_id(todo_id: str):
+    result = await todo_collection.find_one({"_id": ObjectId})
+    if todo:
+        return{**todo, "id": str(todo[id])}
+    return None
+
+async def udpate_todo(todo_id: str, todo_update: dict):
+    result = await todo_collection.update_one(
+        {"_id":ObjectId(todo_id)}, {"$set": todo_update}
+    )
+    return result.modified_count > 0
+
+async def delete_todo(todo_id:str):
+        result = await todo_collection.delete_one({"_id": ObjectId(todo_id)})
+        return result.deleted_count > 0
+
+
+

@@ -1,21 +1,16 @@
 from typing import Optional
+from pydentic import BaseModel
 
 
 
-class Todo():
-    def __init__(self, id:int, title:str, description:Optional[str] = None, completed:bool = False):
-        self.id = id
-        self.title = title
-        self.description = description
-        self.completed = completed
+class Todocreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    completed: bool = False
 
-    def dict(self):
-        return {
-            "id": self.id,
-            "title": self.title, 
-            "description": self.description,
-            "completed": self.completed
-        }
+
+class TodoDB(Todocreate):
+    id: str
 
 # def get_todos():
 #     return[todo.dict() for todo in fake_db]
@@ -26,4 +21,3 @@ class Todo():
 #             return  todo_id.dict()
 #     return None
     
-fake_db: list[Todo] = []

@@ -1,4 +1,4 @@
-from fastapi  import FastAPI, HTTPException
+""""from fastapi  import FastAPI, HTTPException
 from typing import Optional
 from app.crud import create_todo, get_all_todos, get_todo_by_id, update_todo, delete_todo
 
@@ -35,3 +35,17 @@ def delete_task(todo_id: int):
 
  
 
+""""
+
+
+from fastapi import FastAPI
+from app.crud import create_todo, delete_todo, get_all_todos, get_todo_by_id, udpate_todo
+from app.models import Todocreate
+
+app = FastAPI()
+
+@app.post("/todos/")
+def create_task(todo: Todocreate):
+    return await create_todo(todo)
+
+@app.get("/todos/")
