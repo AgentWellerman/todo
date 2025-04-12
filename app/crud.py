@@ -41,30 +41,75 @@ def delete_todo(todo_id: int):
 
 
 from app.database import client, database, todo_collection
-from app.models import Todocreate, TodoDB
-from bson.objectid import ObjectId    
+from app.models import Todocreate, TodoDB 
+from bson import ObjectId
 
 
 async def create_todo(todo:Todocreate):
-    todo_dict = todo.dict()
-    result = await todo_collection.insert_one(todo_dict)
-    return{**todo_dict, "id": str(result.inserted_id)}
+    new_todo = todo.dict()
+    result = await todo_collection.insert_one(new_todo)
+    created_todo = await todo_collection.find_one({"_id": result.inserted_id})
+
+    created_todo["_id"] = str(created_todo["_id"])
+    return created_todo
+    
+
 
 async def get_all_todos():
-    todos = await todo_collection.find().to_list(100)
-    return[{**todo, "id":str(todo["_id"])} for todo in todos]
+    todos = []
+    async for todo in todo_collection.find():
+        todo["_id"] = str(todo["_id"])  # преобразуем ObjectId -> str
+        todos.append(todo)
+    return todos
 
-async def get_todo_by_id(todo_id: str):
-    result = await todo_collection.find_one({"_id": ObjectId})
+"""async def get_all_todos():
+    todos = await todo_collection.find().to_list(100)
+    return[{**todo, "id":str(todo["_id"])} for todo in todos]"""
+
+
+"""async def get_todo_by_id(todo_id: str):
+    todo = await todo_collection.find_one({"_id": ObjectId})
     if todo:
         return{**todo, "id": str(todo[id])}
-    return None
+    return None"""
 
-async def udpate_todo(todo_id: str, todo_update: dict):
+"""async def udpate_todo(todo_id: str, todo_update: dict):
     result = await todo_collection.update_one(
         {"_id":ObjectId(todo_id)}, {"$set": todo_update}
     )
-    return result.modified_count > 0
+    return result.modified_count > 0"""
+
+
+
+async def get_todo_by_id(todo_id: str):
+    try:
+        obj_id = ObjectId(todo_id)  # преобразуем строку в ObjectId
+    except Exception as e:
+        print(f"Ошибка преобразования ObjectId: {e}")
+        return None
+
+    todo = await todo_collection.find_one({"_id": obj_id})
+    if todo:
+        todo["_id"] = str(todo["_id"])  # преобразуем обратно в str для ответа
+    return todo
+
+
+
+async def update_todo(todo_id: str, title: str = None, description: str = None, completed: bool = None):
+    update_fields = {}
+    if title is not None:
+        update_fields["title"] = title
+    if description is not None:
+        update_fields["description"] = description
+    if completed is not None:
+        update_fields["completed"] = completed
+
+    if update_fields:
+        await todo_collection.update_one({"_id": ObjectId(todo_id)}, {"$set": update_fields})
+
+    return await get_todo_by_id(todo_id)
+
+
 
 async def delete_todo(todo_id:str):
         result = await todo_collection.delete_one({"_id": ObjectId(todo_id)})
@@ -72,3 +117,4 @@ async def delete_todo(todo_id:str):
 
 
 
+#dergy

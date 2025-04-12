@@ -1,5 +1,5 @@
 from typing import Optional
-from pydentic import BaseModel
+from pydantic import BaseModel
 
 
 
@@ -21,3 +21,5 @@ class TodoDB(Todocreate):
 #             return  todo_id.dict()
 #     return None
     
+
+#commit dlya proekta12313
