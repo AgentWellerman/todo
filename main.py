@@ -113,6 +113,10 @@ async def delete_task(todo_id: str):
         raise HTTPException(status_code=404, detail="Todo not found")
     return {"message": "Todo deleted"}
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 
 
 #commit for github 12312312

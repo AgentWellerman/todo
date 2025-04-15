@@ -1,26 +1,32 @@
-version: "3.9"
+version: '3.8'
 
 services:
   app:
-    build: .
+    build:
+      context: .
     container_name: fastapi_app
-    ports:
-      - "8000:8000"
     depends_on:
       - mongo
+    ports:
+      - "8000:8000"
     environment:
       - MONGO_URI=mongodb://mongo:27017
-    volumes:
-      - .:/app
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   mongo:
-    image: mongo:7.0
-    container_name: mongodb
+    image: mongo:latest
+    container_name: mongo
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  mongo_data:
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
