@@ -1,0 +1,17 @@
+apiVersion: build.openshift.io/v1
+kind: BuildConfig
+metadata:
+  name: fastapi-build
+spec:
+  source:
+    type: Git
+    git:
+      uri: https://github.com/AgentWellerman/todo
+    contextDir: .  # если Dockerfile не в корне, укажи путь до директории
+  strategy:
+    type: Docker
+    dockerStrategy: {}
+  output:
+    to:
+      kind: ImageStreamTag
+      name: fastapi-app:latest
