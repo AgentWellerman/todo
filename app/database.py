@@ -1,6 +1,6 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
-MONGO_URL= "mongodb://mongo:27017/"
+MONGO_URL= "mongodb://localhost:27018/"
 DB_NAME = "todo_db"
 
 
