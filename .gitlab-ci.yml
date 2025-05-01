@@ -1,26 +1,33 @@
+
+image: openshift/origin-cli
+
 stages:
-  - build
-  - deploy
+  - build  # dummy stage to follow the template guidelines
+  - deploy  # dummy stage to follow the template guidelines
 
 variables:
-  IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  OPENSHIFT_SERVER: https://api.rm2.thpm.p1.openshiftapps.com:6443
+  # Configure this variable in Secure Variables:
+  OPENSHIFT_TOKEN: $OPENSHIFT_TOKEN
+  PROJECT_NAME: derbyve-dev
+  APP: fastapi-app
 
-build:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  script:
-    - docker login -u "$frostylewin" -p "$FrCLG0qgWs2iSw"
-    - docker build -t $frostylewin/myfastapiappv2 .
-    - docker push $frostylewin/myfastapiappv2:latest
+  
 
-deploy:
-  stage: deploy
-  image: bitnami/kubectl:latest
+
+.deploy: &deploy
+  before_script:
+    - oc login "$OPENSHIFT_SERVER" --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
+    - oc project "$PROJECT_NAME" 2> /dev/null 
   script:
-    - echo "$KUBECONFIG_CONTENT" | base64 -d > kubeconfig.yaml
-    - export KUBECONFIG=$(pwd)/kubeconfig.yaml
-    - kubectl set image deployment/fastapi-app =$IMAGE_TAG -n YOUR_NAMESPACE
-  only:
-    - main
+    - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP --strategy=docker"
+    - "oc start-build $APP --from-dir=. --follow || sleep 3s && oc start-build $APP --from-dir=. --follow"
+    - "oc get routes $APP 2> /dev/null
+
+
+
+
+
+
+
+
