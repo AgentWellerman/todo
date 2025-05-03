@@ -7,23 +7,35 @@ stages:
 
 variables:
   OPENSHIFT_SERVER: https://api.rm2.thpm.p1.openshiftapps.com:6443
-  # Configure this variable in Secure Variables:
-  OPENSHIFT_TOKEN: $OPENSHIFT_TOKEN
   PROJECT_NAME: derbyve-dev
-  APP: fastapi-app
+  BUILD_NAME: todo
+  DEPLOYMENT_NAME: fastapi-app 
+  NAMESPACE: derbyve-dev
+  IMAGE_STREAM_TAG: frostylewin/myfastapiappv2:latest
+
+
+before_script:
+  - echo "$KUBECONFIG_CONTENT" > kubeconfig
+  - export KUBECONFIG=$CI_PROJECT_DIR/kubeconfig
+  - oc whoami
 
   
-
-
-.deploy: &deploy
-  before_script:
-    - oc login "$OPENSHIFT_SERVER" --token=$OPENSHIFT_TOKEN --insecure-skip-tls-verify
-    - oc project "$PROJECT_NAME" 2> /dev/null 
+build:
+  stage: build
   script:
-    - "oc get services $APP 2> /dev/null || oc new-app . --name=$APP --strategy=docker"
-    - "oc start-build $APP --from-dir=. --follow || sleep 3s && oc start-build $APP --from-dir=. --follow"
-    - "oc get routes $APP 2> /dev/null
+    - echo "Starting OpenShift build..."
+    - oc start-build $BUILD_NAME --from-dir=. --follow -n $NAMESPACE
+  only:
+    - main
 
+
+deploy:
+  stage: deploy
+  script:
+    - echo "Deploying to OpenShift..."
+    - oc rollout restart deployment/$DEPLOYMENT_NAME -n $NAMESPACE
+  only:
+    - main
 
 
 
