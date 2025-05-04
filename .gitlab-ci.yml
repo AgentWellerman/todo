@@ -3,6 +3,7 @@ image: openshift/origin-cli
 
 stages:
   - build  # dummy stage to follow the template guidelines
+  - test
   - deploy  # dummy stage to follow the template guidelines
 
 variables:
@@ -19,7 +20,12 @@ before_script:
   - export KUBECONFIG=$CI_PROJECT_DIR/kubeconfig
   - oc whoami
 
-  
+test:
+  stage: test
+  script: 
+    - echo "Test started" && sleep 60s
+    - echo "Test completed!"
+
 build:
   stage: build
   script:
